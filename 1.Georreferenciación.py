@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from scipy.linalg import lstsq
 from scipy.optimize import fsolve
 from CoeficientesDLT import obtenerCoefDLT
 """
@@ -69,4 +68,11 @@ denominadorNs= (1 - e**2 * np.cos(theta_rad)**2)**(1/2)
 Ns_promedio = np.mean(numeradorNs / denominadorNs)
 
 print(f"⟨Ns⟩ = {Ns_promedio:.3f} metros")
+
+# Calcular incrementos de latitud y longitud
+data['dtheta']=data['distancia']/M_promedio
+data['dlambda']=data['distancia']/Ns_promedio
+# Calcular incrementos promedio de latitud y longitud    
+incrementoLat= np.mean(data['dtheta'].values)
+incrementoLong= np.mean(data['dlambda'].values)
 
