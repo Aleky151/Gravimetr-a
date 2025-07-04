@@ -2,13 +2,28 @@ import pandas as pd
 import numpy as np
 from scipy.optimize import fsolve
 from CoeficientesDLT import obtenerCoefDLT
+import rasterio
+
 """
 Georreferenciación de imágenes utilizando el método DLT (Direct Linear Transformation).
 """
-data=pd.read_csv('puntos_control.csv')
-print (data.head())
-coord_imagen=data[['x','y']].values
+data=pd.read_csv("C:\\Users\\HP\\OneDrive\\Escritorio\\Gravimetría\\CSValoresDEM.csv")
 coord_terrestre=data[['X','Y','Z']].values
+
+# Abrir el DEM
+with rasterio.open("C:\\Users\\HP\\OneDrive\\Escritorio\\Gravimetría\\Aster DEM.tif") as dem:
+    # Leer el CSV con coordenadas del DEM
+    # Función para obtener i, j (fila, columna del píxel)
+    def get_pixel_coords(row):
+        col, row_ = dem.index(row['X'], row['Y'])  # nota: col = j, row_ = i
+        return pd.Series({'x': row_, 'y': col})
+
+    # Aplica la función al dataframe
+    data[['x', 'y']] = data.apply(get_pixel_coords, axis=1)
+
+# Listo: df ahora tiene las columnas i, j (coordenadas de imagen en el DEM)
+""""""
+coord_imagen=data[['x','y']].values
 # Obtener coeficientes DLT
 c= obtenerCoefDLT(coord_imagen, coord_terrestre)
 # Coeficientes DLT obtenidos
@@ -48,7 +63,7 @@ def calcDistancia():
 #WGS84 values:
 # Constantes conocidas
 a = 6378137         # semieje mayor (m)
-e = 0.0818191908426 # excentricidad de la Tierra
+e = 0.0069**(1/2) # excentricidad de la Tierra
 # Supongamos que df['X'] contiene las latitudes en grados
 theta_deg = data['X']
 theta_rad = np.radians(theta_deg)
